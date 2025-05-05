@@ -1,0 +1,197 @@
+---
+title: "Demographic Insights into England's Household Census Conducted in 2021"
+format:
+  html:
+    code-fold: true
+    code-link: true
+    embed-resources: true
+    toc: true
+    number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| label: loading packages
+#| include: false
+library(tidyverse)
+library(readr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(downlit)
+library(ggthemes)
+
+```
+
+# Introduction
+
+This quarto document explores the relationships and patterns in the household census conducted in England (2021) dataset. The analysis is performed using tidyverse[@tidyverse], readr[@readr], janitor[@janitor],dplyr[@dplyr], ggplot2[@ggplot2-2], downlit[@downlit] and ggthemes[@ggthemes] packages in R. I aim to answer specific questions related to each variable and uncover insights into the dataset.
+
+# The Data
+
+To begin my analysis, I loaded and cleaned the household census dataset (data-1.csv) in R.
+
+```{r}
+# Setting file path
+setwd("C:/Users/USER/Documents/DATA SCIENCE")
+getwd()
+
+# Importing dataset and assigning it the variable name 'hhc_data'
+hhc_data <- read_csv("data-1.csv",show_col_types = FALSE)
+
+# Formatting variable names 
+library(janitor)
+hhc_data1 <- clean_names(hhc_data)
+
+# Handling missing values
+hhc_data_cleaned <- na.omit(hhc_data1)
+hhc_data_cleaned
+```
+## Data Summary (Variable Analysis Sections):
+
+This section includes the analysis of each variable individually, comparisons between variables, questions of interest, ggplot codes for visualization, and my interpretations and insights:
+
+### Exploring Age patterns through Histogram Analysis
+
+```{r}
+ggplot(data = hhc_data_cleaned,mapping = aes(x = age)) + 
+  geom_histogram(binwidth = 1, fill = "lightblue", color = "black") + 
+  labs(x = "age", y = "frequency", title = "Histogram of age")
+```
+**Interpretation and insights:**
+
+The age histogram plot gives a visual representation of how ages are distributed in the census dataset of households. On the graph, the x-axis corresponds to "Age," while the y-axis reflects the "Frequency" of individuals. The bars on the chart show the occurrence of different age groups in the dataset which shows a rightward skewness, indicating higher frequencies at younger ages and lower frequencies at older ages.
+
+Analyzing the histogram, it becomes evident that there's a prevalence of households with younger individuals, and certain age groups stand out in the dataset. The highest point on the histogram, centered around age 25, suggests that this particular age group is the most common in the dataset. Moving towards older ages, the frequencies decline, signaling that younger individuals dominate the population represented in the dataset. This inference is drawn from the observation that the highest frequency occurs around age 25, and as age increases, the frequency steadily decreases.
+
+### Bar Chart Analysis of the Distribution of "Age" by "Marital Status"
+
+```{r}
+ggplot(data = hhc_data_cleaned,mapping = aes(x=mar_stat, fill = cut(age, breaks = seq(0, 100, by =10)))) + 
+  geom_bar(position = "dodge") + 
+  labs(x = "Marital Status", y = "Count", title = "Age Distribution by Marital Status") + 
+  scale_fill_discrete(name = "Age Group")
+```
+**Interpretation and insights:**
+
+This bar chart visually represents the age distribution across various marital statuses in a single snapshot. Each marital status—divorced, married, never married, separated, and widowed—is depicted by distinct bars. The x-axis indicates marital status, while the y-axis displays the corresponding count. The bars are color-coded to represent different age groups, such as (10,20], (20,30], (30,40], (50,60], (70,80], and (90,100]. Notably, the chart highlights that married individuals have the highest count, particularly in the (40,50] age group, while separated individuals have the lowest count, specifically in the (70,80] age group.
+
+The chart offers a comprehensive look at age distribution within each marital status category, revealing notable differences in age profiles among them. Married and divorced individuals share a similar pattern, peaking in the (40,50] age group, with a general increase in count leading up to this peak. In contrast, never married individuals follow a unique profile, with the highest count in the (10,20] age group and a decline as age increases. Separated individuals stand out with a peak in the (30,40] age group. Lastly, widowed individuals show a later peak in the (70,80] age group, contributing to the distinct age distributions across marital statuses.
+
+Examining correlation trends among different marital statuses uncovers specific age-related patterns:
+
+- Married and Divorced Individuals: Positive correlation up to the (40,50] age group, transitioning to negative correlation after this peak age group.
+
+- Never Married Individuals: Exhibits a negative correlation, with the highest count in the (10,20] age group, decreasing as age increases.
+
+- Separated Individuals: Displays a positive correlation up to the (30,40] age group, followed by a shift to negative correlation after the peak age group.
+
+- Widowed Individuals: Shows a positive correlation, reaching a peak in the (70,80] age group, and then transitions to negative correlation.
+
+### Boxplot analysis of the variables "Female" and "Annual Income in Pounds"
+
+```{r}
+ggplot(data = hhc_data_cleaned, mapping = aes(x = as.factor(female), y = inc, fill = as.factor(female))) + 
+  geom_boxplot() + 
+  labs(x = "female (0 = Yes, 1 = No)", y = "Annual income in pounds", title = "Distribution of Annual Income by Female Identification")
+```
+**Interpretation and insights:**
+
+The boxplot graph displayed above [@barchar2004] illustrates the distribution of annual income based on female identification. On the x-axis, 0 represents 'yes' (female), and 1 represents 'no' (non-female), while the y-axis represents annual income in pounds. The graph distinctly reveals a higher distribution of annual income among those who identify as female. The boxes represent the interquartile range (IQR), the median is denoted by a horizontal line within the box, and the whiskers extend to encompass the minimum and maximum values. Additionally, a few outliers are marked by black dots.
+
+This plot indicates a noticeable disparity in the distribution of annual income between genders:
+
+- Female Identification (0): The boxplot[@boxplot2007] portrays a higher median annual income, with the interquartile range (IQR) suggesting a more concentrated distribution. The whiskers extend to cover a broader range of incomes, and there are a few outliers, indicating values outside the typical range.
+
+- Non-Female Identification (1): The boxplot illustrates a lower median annual income, featuring a narrower interquartile range. The whiskers suggest a more limited spread of income values, and there are fewer outliers compared to the female group.
+
+### Analysis of 'Housing Condition' Distribution by 'Ethnicity' Using Bar Chart
+
+```{r}
+ggplot(data = hhc_data_cleaned, mapping = aes(x = eth, fill = as.factor(h8))) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count", fill = "Housing Condition") +
+  ggtitle("Housing Condition Distribution by Ethnicity")
+```
+**Interpretation and insights:**
+
+This bar chart breaks down the distribution of housing conditions based on ethnicity. Titled "Housing Condition Distribution by Ethnicity," the x-axis lists five categories: Asian, Black, Hispanic, Other, and White. The y-axis, labeled "Count," ranges from 0 to 15000. The bars, distinctly colored, represent housing conditions: pink for condition 0 (rooms behind private doors) and blue for condition 1 (rooms not behind private doors).
+
+The chart reveals a diverse dataset with each ethnicity contributing to the overall representation. Notably, the "White" category stands out with the highest count, exceeding 15,000 households meeting the criteria for housing condition 0. Conversely, the "Other" category has the lowest count, around 500 households meeting the same criteria, indicating a smaller proportion with rooms behind private doors. The "Asian" category is unique, featuring a blue bar indicating approximately 2500 households not meeting the criteria for private rooms (housing condition 1), setting it apart from other categories.
+
+In summary, housing condition 0 is prevalent among White households, while the Asian category introduces a distinctive aspect with a notable count of households not meeting the criteria, highlighting disparities in housing conditions across ethnicities.
+
+### Bar chart analysis of the distribution of "housing condition" by "highest level of study"
+
+```{r}
+ggplot(data = hhc_data_cleaned,mapping = aes(x = as.factor(h8), fill = highest_ed)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Housing Condition", y = "Count", fill = "Highest Level of Study") +
+  ggtitle("Housing Condition Distribution by Highest Level of Study")
+```
+**Interpretation and insights:**
+
+This bar chart breaks down how housing conditions are distributed based on the highest level of study. On the horizontal axis, there are two housing conditions: 0, indicating rooms exclusively accessible to the household, and 1, denoting rooms not behind a private door. The vertical axis shows counts ranging from 0 to 5000. To distinguish between different levels of study, the graph uses five colors.
+
+The data reveals a connection between housing conditions and the highest level of study. The highest count is observed among individuals with some higher education degree, and these are mostly associated with housing condition 0 (rooms behind private doors). On the other hand, the lowest count is linked to individuals with a master's or higher degree, and they tend to have housing condition 1 (rooms not behind private doors).
+
+### Analysis of Distribution of 'Highest Level of Study' by 'Ethnicity' Using Bar Chart
+
+```{r}
+ggplot(data = hhc_data_cleaned, aes(x = eth, fill = highest_ed)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count", fill = "Highest Level of Study") +
+  ggtitle("Distribution of Highest Level of Study by Ethnicity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        plot.margin = margin(1, 1, 1, 1, "cm"))
+```
+**Interpretation and insights:**
+
+This bar chart visually represents the distribution of the highest level of study across various ethnicities. The x-axis illustrates the ethnic categories: Asian, Black, Hispanic, Other, and White, while the y-axis denotes the count of individuals. The bars are color-coded to signify different levels of study.
+
+Examining the chart unveils significant patterns in education distribution among ethnicities. White individuals, especially those with some Higher Education (HE) degree, stand out with the highest count, surpassing 4000. On the flip side, individuals from Other ethnicities with a master's or higher degree show the lowest count, hovering around 100.
+
+The dominance of White individuals, particularly in the HE degree category, hints at a higher representation in advanced education. In contrast, other ethnicities showcase a more diverse distribution across various education levels, portraying a broader educational landscape.
+
+This thorough analysis sheds light on the differences and prevalence of educational achievements within diverse ethnic groups. The plot effectively captures the educational landscape, providing a nuanced understanding of the dataset's composition.
+
+### Scatter Plot Analysis of the "Highest Level of Study" and "Annual Income in Pounds" Variables
+
+```{r}
+ggplot(data = hhc_data_cleaned,mapping = aes(x = as.factor(highest_ed), y = inc)) +
+  geom_point(color = "blue") +  
+  labs(x = "Highest Level of Study", y = " Annual Income in Pounds") +
+  ggtitle("Relationship between Education and Income") +
+  theme(axis.text.x = element_text(angle = 15, hjust = 1))
+```
+**Interpretation and insights:**
+
+The scatter plot above paints a picture of the connection between education (highest level of study) and income. Tthe x-axis shows the education levels categorized as "Bachelor's Degree," "Less than Secondary School," "Masters or Higher," "Secondary School," and "Some HE." Meanwhile, the y-axis represents annual income in pounds, spanning from 0 to 60,000 pounds, with data points marked in blue and scattered across the graph.
+
+Examining the income distribution across education levels, data points for "Some HE" stand out with the highest income values, exceeding 60,000 pounds. "Bachelor's Degree" data points generally fall below 60,000 pounds but consistently hover above 55,000 pounds. Moving to "Masters or Higher," data points range from 50,000 to 60,000 pounds. "Secondary School" data points span from above 40,000 to just below 50,000 pounds, and "Less than Secondary School" data points fall between 30,000 and 40,000 pounds. This distribution hints at a positive correlation between education levels and income, suggesting that individuals with higher education generally enjoy higher incomes.
+
+### Analysis of the distribution of 'person_id' Variable Using Histogram
+
+```{r}
+# ggplot code
+ggplot(data = hhc_data_cleaned,mapping = aes(x = person_id)) +
+  geom_histogram(binwidth = 1, fill = "green", color = "black") +
+  labs(x = "Number of Individual per Household", y = "Count") +
+  ggtitle("Distribution of Number of Individuals per Household") +
+  theme_minimal()
+```
+**Interpretation and Insights:**
+
+The plot above displays a histogram illustrating the distribution of the number of individuals per household. On the x-axis, you'll find the "Individual ID Number," and the y-axis represents the "Count" of households. Each bar in the histogram corresponds to a specific range of individual counts, with the histogram centered around an "Individual ID Number" of 0 to 15.
+
+Taking a closer look, the tallest bar, boasting a count of over 10,000, suggests that a considerable number of households fall within a particular range of individuals. This indicates that many households have a consistent count of individuals.
+
+The declining trend in bar heights as the "Individual ID Number" increases hints at smaller households (with fewer individuals) being more prevalent than larger ones. This might reflect common family structures characterized by small families or households with only a few members. The peak in the histogram essentially represents the most common family size.
+
+# Conclusion
+
+Examining the household census dataset for England in 2021 provides valuable insights into the demographics, socioeconomics, and housing dynamics of the population. Noteworthy discoveries include a predominant presence of young individuals, disparities in income based on gender, and significant variations in housing conditions among different ethnic groups. The data highlights a connection between education levels and housing conditions, revealing that individuals with some Higher Education (HE) degree generally experience better housing conditions. Furthermore, there is a positive correlation between education levels and income, suggesting higher incomes for those with advanced education.
+
+The dataset also underscores the prevalence of White individuals, particularly those with some HE degree, indicating a higher representation in advanced education. In contrast, other ethnicities show a more diverse distribution across various education levels, contributing to the overall educational landscape. The analysis further illuminates common family structures, with smaller households being more widespread.
+
+These findings carry implications for targeted policy interventions aimed at addressing specific needs and disparities within different demographic groups. By comprehending these patterns, policymakers can formulate more inclusive strategies for societal development in England.
